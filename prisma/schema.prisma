@@ -1,0 +1,144 @@
+// Poker Tracker schema
+// Money is stored as integer cents everywhere to avoid float drift.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+
+}
+
+model Player {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  nickname  String?
+  email     String?
+  phone     String?
+  notes     String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  entries      GameEntry[]
+  transactions Transaction[]
+  groups       GroupMember[]
+  bankOperations GameOperation[]
+}
+
+model PokerGroup {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  inviteCode  String   @unique
+  accent      String   @default("#ff6a4d")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members      GroupMember[]
+  games        Game[]
+  transactions Transaction[]
+}
+
+model GroupMember {
+  groupId  String
+  playerId String
+  role     String   @default("MEMBER") // OWNER | ADMIN | MEMBER
+  active   Boolean  @default(true)
+  joinedAt DateTime @default(now())
+
+  group  PokerGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  player Player     @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@id([groupId, playerId])
+  @@index([playerId])
+}
+
+model Game {
+  id           String   @id @default(cuid())
+  name         String
+  date         DateTime
+  status       String   @default("ACTIVE") // ACTIVE | CLOSED
+  location     String?
+  notes        String?
+  defaultBuyIn Int      @default(2000) // cents
+  bankTracking Boolean  @default(false)
+  bankVersion  Int      @default(0)
+  chipBankSize Int?
+  openingCash  Int      @default(0)
+  startRequestId String? @unique
+  groupId      String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  group        PokerGroup?  @relation(fields: [groupId], references: [id], onDelete: Restrict)
+  entries      GameEntry[]
+  transactions Transaction[]
+  bankOperations GameOperation[]
+
+  @@index([groupId, date])
+}
+
+model GameEntry {
+  id         String  @id @default(cuid())
+  gameId     String
+  playerId   String
+  buyIn      Int     @default(0) // cents, total across initial buy-in + rebuys
+  cashOut    Int     @default(0) // cents
+  rebuys     Int     @default(0)
+  adjustment Int     @default(0) // cents, signed (tips, late fees, side pots)
+  note       String?
+
+  game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@unique([gameId, playerId])
+  @@index([playerId])
+}
+
+model Transaction {
+  id        String   @id @default(cuid())
+  playerId  String
+  date      DateTime
+  type      String // BUY_IN | CASH_OUT | SETTLEMENT_IN | SETTLEMENT_OUT | DEPOSIT | WITHDRAWAL | ADJUSTMENT
+  amount    Int // cents, SIGNED. positive = league owes player more, negative = player owes league
+  method    String? // CASH | BANK | UPI | CARD | OTHER
+  note      String?
+  gameId    String?
+  groupId   String?
+  createdAt DateTime @default(now())
+  operationId String? @unique
+  operation GameOperation? @relation(fields: [operationId], references: [id], onDelete: Cascade)
+
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  game   Game?  @relation(fields: [gameId], references: [id], onDelete: SetNull)
+  group  PokerGroup? @relation(fields: [groupId], references: [id], onDelete: Restrict)
+
+  @@index([groupId, date])
+  @@index([playerId, date])
+  @@index([date])
+}
+
+// Append-only game bank history. Corrections void a whole batch; totals are rebuilt.
+model GameOperation {
+  id          String   @id @default(cuid())
+  gameId      String
+  playerId    String
+  kind        String
+  amount      Int
+  batchId     String
+  relatedId   String? // Buy-in / return being cleared; validated within this game.
+  rebuyCount  Int      @default(0)
+  note        String?
+  createdAt   DateTime @default(now())
+  voidedAt    DateTime?
+  game        Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  player      Player   @relation(fields: [playerId], references: [id], onDelete: Restrict)
+  transaction Transaction?
+
+  @@index([gameId, createdAt])
+  @@index([relatedId])
+  @@index([batchId])
+}

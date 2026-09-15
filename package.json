@@ -6,10 +6,23 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "start:prod": "node scripts/migrate.mjs && next start",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "check": "npm run lint && npm run typecheck && npm test && npm run build",
+    "db:migrate": "node scripts/migrate.mjs",
+    "db:backup": "node scripts/backup-db.mjs",
+    "db:studio": "prisma studio",
+    "postinstall": "prisma generate",
+    "vercel-build": "node scripts/migrate.mjs && next build"
   },
   "dependencies": {
+    "@libsql/client": "^0.17.4",
+    "@prisma/adapter-libsql": "^7.10.0",
+    "@prisma/client": "^7.10.0",
     "next": "16.3.4",
+    "prisma": "^7.10.0",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   },
@@ -18,9 +31,14 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.4.2",
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
     "tailwindcss": "^4",
+    "tsx": "^4.23.13",
     "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=20.19"
   }
 }

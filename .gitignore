@@ -39,3 +39,24 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/src/generated/prisma
+.gstack/
+!.env.example
+
+# local database, WAL side files and backups — real money data never goes in git
+/prisma/*.db
+/prisma/*.db-*
+/prisma/*.bak
+/backups
+
+# design exports and agent/tooling folders
+/.design-reference
+/Poker tracker with PKRTrackr features
+*.zip
+/.agents
+/.windsurf
+skills-lock.json
+
+# Prisma CLI agent skill docs (tooling, not app code)
+/.claude/skills

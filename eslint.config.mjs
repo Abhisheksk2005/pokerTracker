@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    ".gstack/**",
+    // Generated export kept only as a visual reference for the live app.
+    "Poker tracker with PKRTrackr features/**",
   ]),
 ]);
 
