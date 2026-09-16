@@ -2,11 +2,13 @@ import Link from "next/link";
 import { Icon, type IconName } from "@/components/icons";
 import { ConfirmButton } from "@/components/form";
 import { Avatar, SectionTitle } from "@/components/poker-ui";
+import { SettleUp } from "@/components/settle-up";
 import { Card, CardHeader, Empty, Money, PlayerLink, StatTile } from "@/components/ui";
-import { deleteTransaction } from "@/lib/actions";
+import { deleteTransaction, recordSettlement } from "@/lib/actions";
 import { fmtDate, fmtDayHeading, parseDateInput } from "@/lib/dates";
 import { balancesByPlayer, getTransactions, groupByDay, isTxType, ledgerTotals, TX_META, TX_TYPES, withRunningBalance, type TxType } from "@/lib/ledger";
 import { fmtMoney } from "@/lib/money";
+import { settleUp } from "@/lib/settle";
 import { getPlayers } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
@@ -20,6 +22,9 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
   const from = sp.from ? parseDateInput(sp.from) : undefined;
   const to = sp.to ? endOfDay(parseDateInput(sp.to)) : undefined;
   const [rows, players] = await Promise.all([getTransactions({ playerId, type, from, to }), getPlayers()]);
+  // Settle-up always covers the whole group, regardless of the filters above.
+  const allRows = playerId || type || from || to ? await getTransactions() : rows;
+  const settlement = settleUp(balancesByPlayer(allRows));
   const totals = ledgerTotals(rows);
   const allDays = groupByDay(rows);
   const balances = balancesByPlayer(rows);
@@ -42,6 +47,8 @@ export default async function TransactionsPage({ searchParams }: { searchParams:
   return <>
     <h1 className="sr-only">{focusPlayer ? `${focusPlayer.name} · ledger` : "Ledger"}</h1>
     <div className="page-toolbar"><span className="eyebrow">{focusPlayer ? <>{focusPlayer.name}<br />Every payment.</> : <>Every night.<br />Every payment.</>}</span><Link href="/transactions/new" className="btn btn-primary"><Icon name="plus" size={16} />Record payment</Link></div>
+
+    <SettleUp settlements={settlement.settlements} imbalance={settlement.imbalance} owed={settlement.owed} action={recordSettlement} />
 
     <nav className="filter-chips mb-3" aria-label="Transaction type">
       <Link href={(() => { const params = new URLSearchParams(); if (playerId) params.set("playerId", playerId); if (sp.from) params.set("from", sp.from); if (sp.to) params.set("to", sp.to); return `/transactions${params.size ? `?${params}` : ""}`; })()} className={`filter-chip ${!type ? "filter-chip-active" : ""}`} aria-current={!type ? "true" : undefined}><Icon name="list" size={14} />All types</Link>

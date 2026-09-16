@@ -375,6 +375,46 @@ export async function createTransaction(_prev: unknown, fd: FormData) {
   return { ok: true as const, message: "Transaction recorded." };
 }
 
+/**
+ * Record one settle-up payment between two players as a linked pair of ledger
+ * entries: the payer hands cash in, the receiver takes cash out. Written in one
+ * transaction so a half-recorded payment can never skew the balances.
+ */
+export async function recordSettlement(_prev: unknown, fd: FormData) {
+  const groupId = await getActiveGroupId();
+  const fromId = str(fd, "fromId");
+  const toId = str(fd, "toId");
+  const amount = toCents(str(fd, "amount"));
+
+  if (!fromId || !toId) return { error: "Pick who is paying and who is being paid." };
+  if (fromId === toId) return { error: "A player cannot pay themselves." };
+  if (amount <= 0) return { error: "Enter an amount above zero." };
+  if (!(await playerBelongsToGroup(fromId, groupId)) || !(await playerBelongsToGroup(toId, groupId))) {
+    return { error: "Those players are not in the active group." };
+  }
+
+  const [payer, receiver] = await Promise.all([
+    prisma.player.findUnique({ where: { id: fromId }, select: { name: true } }),
+    prisma.player.findUnique({ where: { id: toId }, select: { name: true } }),
+  ]);
+  if (!payer || !receiver) return { error: "Player not found." };
+
+  const date = parseDateInput(str(fd, "date"));
+  const method = optional(fd, "method");
+
+  await prisma.$transaction([
+    prisma.transaction.create({
+      data: { groupId, playerId: fromId, date, type: "PAYMENT_IN", amount: -amount, method, note: `Settle up: paid ${receiver.name}` },
+    }),
+    prisma.transaction.create({
+      data: { groupId, playerId: toId, date, type: "PAYMENT_OUT", amount, method, note: `Settle up: paid by ${payer.name}` },
+    }),
+  ]);
+
+  refreshAll();
+  return { ok: true as const, message: `Recorded ${payer.name} → ${receiver.name}.` };
+}
+
 export async function updateTransaction(_prev: unknown, fd: FormData) {
   const groupId = await getActiveGroupId();
   const id = str(fd, "id");

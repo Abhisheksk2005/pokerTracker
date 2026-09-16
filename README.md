@@ -24,6 +24,12 @@ No demo seed is included. Player profiles, games and transactions exist only whe
 - Owners are fixed; other members can be promoted to Admin or returned to Member.
 - Switching the active group immediately scopes the dashboard, nights, roster, statistics and ledger.
 
+## Settling up
+
+The **Ledger** tab opens with a **Settle up** card: the fewest payments that clear every balance across all games, e.g. "Prasad pays Karlos ₹250". Tap a row to record it, optionally adjusting the amount for a part payment. Each recorded payment writes a linked pair of ledger entries (payer in, receiver out) in one database transaction, and the list recalculates. When nothing is outstanding the card reads "Everyone is square".
+
+The card always covers the whole group, even while the ledger below is filtered. It works from recorded payments, so money still owed inside an unfinished game appears on that game's page until you settle it. If cash in and cash out do not agree, the card says how much is unaccounted for.
+
 ## Checks
 
 ```bash

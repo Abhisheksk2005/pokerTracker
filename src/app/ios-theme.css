@@ -176,3 +176,32 @@ button, input, select, textarea { font-family:inherit; }
 .app-content { padding-bottom:calc(110px + env(safe-area-inset-bottom)); }
 .quick-action-lock { display:flex; width:100%; justify-content:space-between; gap:15px; padding:12px 10px; border-radius:12px; font-size:14px; font-weight:800; color:var(--text-dim); background:transparent; border:0; cursor:pointer; }
 .quick-action-lock:hover { background:#26262e; }
+
+/* ---------------------------------------------------------------- settle up */
+.settle-card { margin-bottom:18px; padding:18px; border-radius:26px; border:1px solid rgba(255,122,90,.4); background:linear-gradient(140deg,rgba(255,110,78,.16),rgba(255,110,78,.05)); box-shadow:0 14px 34px -22px rgba(255,110,78,.9); }
+.settle-card header .eyebrow { display:block; letter-spacing:2.2px; color:rgba(255,255,255,.5); }
+.settle-card header h2 { margin:8px 0 4px; font:800 21px/1.15 var(--ios-font); letter-spacing:-.6px; color:#fff; }
+.settle-card header p { font:400 13.5px/1.4 var(--ios-font); color:rgba(255,255,255,.5); }
+.settle-list { margin-top:14px; display:flex; flex-direction:column; gap:8px; }
+.settle-row { border-radius:20px; border:.5px solid rgba(255,255,255,.09); background:rgba(12,12,15,.5); overflow:hidden; }
+.settle-summary { display:flex; align-items:center; gap:12px; width:100%; padding:13px 14px; border:none; background:transparent; color:#fff; font-family:inherit; text-align:left; cursor:pointer; }
+.settle-summary:hover { background:rgba(255,255,255,.04); }
+.settle-names { flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+.settle-names strong { font:700 15px/1.2 var(--ios-font); letter-spacing:-.3px; }
+.settle-names span { font:400 12.5px/1.3 var(--ios-font); color:rgba(255,255,255,.45); }
+.settle-names b { color:var(--coral); font-weight:700; }
+.settle-amount { font:800 16px/1 var(--font-mono); color:#fff; letter-spacing:-.4px; white-space:nowrap; }
+.settle-summary > svg { flex:0 0 auto; color:rgba(255,255,255,.4); }
+.settle-form { padding:2px 14px 14px; display:flex; flex-direction:column; gap:12px; border-top:.5px solid rgba(255,255,255,.07); }
+.settle-fields { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding-top:12px; }
+.settle-fields label:first-child { grid-column:1 / -1; }
+.settle-fields label { display:flex; flex-direction:column; }
+.settle-hint { font:400 11.5px/1.45 var(--ios-font); color:rgba(255,255,255,.42); }
+.settle-message { margin-top:12px; padding:10px 12px; border-radius:14px; font:600 13px/1.35 var(--ios-font); }
+.settle-error { background:rgba(255,90,90,.14); color:#ff9b9b; }
+.settle-ok { background:rgba(46,214,140,.14); color:#6fe0ae; }
+.settle-imbalance { margin-top:12px; font:400 11.5px/1.45 var(--ios-font); color:rgba(255,255,255,.45); }
+.settle-card-clear { display:flex; align-items:center; gap:14px; border-color:rgba(46,214,140,.28); background:linear-gradient(140deg,rgba(46,214,140,.12),rgba(255,255,255,.03)); box-shadow:none; }
+.settle-clear-icon { display:flex; align-items:center; justify-content:center; width:44px; height:44px; flex:0 0 auto; border-radius:16px; background:rgba(46,214,140,.16); color:#2ED68C; }
+.settle-card-clear strong { font:700 16px/1.2 var(--ios-font); color:#fff; letter-spacing:-.3px; }
+.settle-card-clear p { margin-top:3px; font:400 13px/1.4 var(--ios-font); color:rgba(255,255,255,.45); }
