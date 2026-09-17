@@ -205,3 +205,11 @@ button, input, select, textarea { font-family:inherit; }
 .settle-clear-icon { display:flex; align-items:center; justify-content:center; width:44px; height:44px; flex:0 0 auto; border-radius:16px; background:rgba(46,214,140,.16); color:#2ED68C; }
 .settle-card-clear strong { font:700 16px/1.2 var(--ios-font); color:#fff; letter-spacing:-.3px; }
 .settle-card-clear p { margin-top:3px; font:400 13px/1.4 var(--ios-font); color:rgba(255,255,255,.45); }
+
+/* -------------------------------------------------- live game: table check */
+.table-check { margin:0 0 12px; padding:12px 14px; border-radius:16px; font:600 13px/1.45 var(--ios-font); letter-spacing:-.1px; }
+.table-check strong { font-family:var(--font-mono); }
+.table-check-ok { background:rgba(46,214,140,.12); border:.5px solid rgba(46,214,140,.28); color:#8af0c4; }
+.table-check-warn { background:rgba(255,110,78,.12); border:.5px solid rgba(255,122,90,.35); color:#ffb9a3; }
+.bank-duplicate { margin:-2px 0 4px; padding:10px 12px; border-radius:14px; background:rgba(255,110,78,.14); border:.5px solid rgba(255,122,90,.35); color:#ffc0ad; font:600 12.5px/1.4 var(--ios-font); }
+.bank-finish .table-check { margin-bottom:14px; }

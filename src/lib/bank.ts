@@ -3,7 +3,7 @@ export const BANK_KINDS = ["INITIAL_BUY_IN", "BUY_IN", "CASH_OUT", "CHIP_RETURN"
 export type BankKind = typeof BANK_KINDS[number];
 export type BankRecord = { id: string; playerId: string; kind: string; amount: number; relatedId: string | null; rebuyCount: number; batchId: string; voidedAt: Date | string | null };
 export const BANK_LABELS: Record<BankKind, string> = {
-  INITIAL_BUY_IN: "Initial buy-in", BUY_IN: "Buy-in", CASH_OUT: "Cash-out", CHIP_RETURN: "Chips lent to bank",
+  INITIAL_BUY_IN: "Initial buy-in", BUY_IN: "Buy-in", CASH_OUT: "Final chips", CHIP_RETURN: "Chips handed over",
   PAYMENT_IN: "Cash received", PAYMENT_OUT: "Cash paid", OFFSET_IN: "Buy-in cleared with credit", OFFSET_OUT: "Credit used for buy-in", CREDIT: "Player credit", CHARGE: "Player charge",
 };
 const CHARGES = new Set(["INITIAL_BUY_IN", "BUY_IN", "CHARGE"]);
