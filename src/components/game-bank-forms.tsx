@@ -14,7 +14,7 @@ export function LiveRefresh() {
   useEffect(() => { const timer = setInterval(() => { if (document.visibilityState === "visible" && !document.activeElement?.closest("form")) router.refresh(); }, 15000); return () => clearInterval(timer); }, [router]);
   return null;
 }
-export function GameBankForms({ context, players, defaultBuyIn, recent = [] }: { context: BankContext; players: Player[]; defaultBuyIn: number; recent?: { playerId: string; amount: number; at: number }[] }) {
+export function GameBankForms({ context, players, defaultBuyIn, recent = [], finished = [] }: { context: BankContext; players: Player[]; defaultBuyIn: number; recent?: { playerId: string; amount: number; at: number }[]; finished?: string[] }) {
   const [tab, setTab] = useState("BUY_IN");
   const [lender, setLender] = useState(players[0]?.id ?? "");
   const [recipient, setRecipient] = useState("");
@@ -35,7 +35,11 @@ export function GameBankForms({ context, players, defaultBuyIn, recent = [] }: {
       ? "Chips from the bank box. Nobody pays now - settle at the end."
       : tab === "LEND"
         ? "One player hands their chips to another. No cash moves."
-        : "Count the chips the player is leaving with.";
+        : "Count the chips the player is leaving with. No chips left? Skip them - there is nothing to record.";
+
+  // A buy-in (or received chips) after a player's final count is the classic slip.
+  const takerId = tab === "LEND" ? recipient : lender;
+  const afterFinal = tab !== "CASH_OUT" && Boolean(takerId) && finished.includes(takerId);
 
   return <section className="bank-controls"><nav className="bank-tabs" aria-label="Game actions">{[["BUY_IN", "+ Buy-in"], ["LEND", "Lend chips"], ["CASH_OUT", "Final chips"]].map(([value, label]) => <button type="button" aria-pressed={tab === value} key={value} className={tab === value ? "selected" : ""} onClick={() => setTab(value)}>{label}</button>)}</nav>
     <ActionForm key={tab} action={bankAction} className="bank-control-form"><BankFields context={context} action={tab === "LEND" ? "RECYCLE" : tab} />
@@ -45,6 +49,7 @@ export function GameBankForms({ context, players, defaultBuyIn, recent = [] }: {
       {tab === "LEND" ? <><label className="label" htmlFor="chip-recipient">Chips to</label><select id="chip-recipient" name="recipientId" className="field" required value={recipient} onChange={(event) => { setRecipient(event.target.value); checkDuplicate(event.target.value, amount); }}><option value="">Choose a player…</option>{players.filter((player) => player.id !== lender).map((player) => <option key={player.id} value={player.id}>{player.name}</option>)}<option value="">— or back into the bank box —</option></select></> : null}
       <label className="label" htmlFor="bank-amount">{tab === "CASH_OUT" ? "Chips counted" : "Chip value"} (₹ INR)</label>
       <input id="bank-amount" name="amount" type="number" min="0.01" step="0.01" required className="field amount-field" value={amount} onChange={(event) => { setAmount(event.target.value); checkDuplicate(tab === "LEND" ? recipient : lender, event.target.value); }} />
+      {afterFinal ? <p className="bank-duplicate">⚠ {players.find((player) => player.id === takerId)?.name}&apos;s final chips are already recorded. Wrong player, or should the final chips be undone first?</p> : null}
       {duplicate ? <p className="bank-duplicate">⚠ {duplicate.name} already took ₹{Number(amount).toLocaleString("en-IN")} {duplicate.minutesAgo < 1 ? "less than a minute" : `${duplicate.minutesAgo} min`} ago. Add another?</p> : null}
       <SubmitButton className="btn btn-primary w-full">{tab === "BUY_IN" ? "Give chips" : tab === "LEND" ? "Move chips" : "Record final chips"}</SubmitButton>
     </ActionForm>
